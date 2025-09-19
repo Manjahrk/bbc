@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Blue Birds Catering</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; scroll-behavior: smooth; }
+    body { font-family: 'Poppins', sans-serif; background: #0d0d0d; color: #f1f1f1; overflow-x: hidden; }
+
+    /* Background Canvas */
+    #stars {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -1;
+      background: #0d0d0d;
+    }
+
+    /* Navbar */
+    header {
+      background: rgba(20,20,20,0.7);
+      backdrop-filter: blur(10px);
+      color: white;
+      padding: 1rem 2rem;
+      position: fixed;
+      width: 100%;
+      top: 0;
+      z-index: 1000;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+    header h1 {
+      font-size: 1.8rem;
+      font-weight: bold;
+      color: #f9d342;
+      text-shadow: 0 0 10px #f9d342, 0 0 20px #f9d342;
+      animation: glowPulse 2s infinite alternate;
+    }
+
+    nav {
+      display: flex;
+      align-items: center;
+    }
+    nav a {
+      margin: 0 12px;
+      font-weight: bold;
+      color: #f1f1f1;
+      transition: color 0.3s, transform 0.3s;
+    }
+    nav a:hover { color: #f9d342; transform: scale(1.1); }
+
+    /* Hamburger */
+    .hamburger {
+      display: none;
+      flex-direction: column;
+      cursor: pointer;
+      gap: 5px;
+    }
+    .hamburger span {
+      display: block;
+      width: 25px;
+      height: 3px;
+      background: #fff;
+      border-radius: 2px;
+      transition: all 0.3s;
+    }
+    .hamburger.active span:nth-child(1) {
+      transform: rotate(45deg) translateY(8px);
+    }
+    .hamburger.active span:nth-child(2) {
+      opacity: 0;
+    }
+    .hamburger.active span:nth-child(3) {
+      transform: rotate(-45deg) translateY(-8px);
+    }
+
+    /* Mobile nav */
+    .nav-links {
+      display: flex;
+    }
+    .nav-links.mobile {
+      display: none;
+      flex-direction: column;
+      background: rgba(20,20,20,0.95);
+      position: absolute;
+      top: 70px;
+      right: 20px;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    .nav-links.mobile a {
+      padding: 1rem 2rem;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+    .nav-links.mobile.show {
+      display: flex;
+      animation: fadeInDown 0.5s ease;
+    }
+
+    /* Hero */
+    .hero {
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      color: white;
+      padding: 2rem;
+      position: relative;
+    }
+    .hero h2 {
+      font-size: 3.5rem;
+      color: #fff;
+      text-shadow: 0 0 10px #2a5298, 0 0 20px #1e3c72;
+      animation: fadeInDown 2s ease, glowPulse 3s infinite alternate;
+    }
+
+    /* Sections */
+    section {
+      padding: 5rem 2rem;
+      opacity: 0;
+      transform: translateY(50px);
+      transition: all 1s ease;
+    }
+    section.visible { opacity: 1; transform: translateY(0); }
+    section h2 {
+      text-align: center;
+      margin-bottom: 2rem;
+      font-size: 2.2rem;
+      color: #f9d342;
+      text-shadow: 0 0 8px #f9d342;
+    }
+
+    /* About */
+    .about p {
+      text-align: center;
+      max-width: 800px;
+      margin: auto;
+      font-size: 1.2rem;
+      color: #ddd;
+    }
+
+    /* Menu */
+    .menu-items {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 20px;
+    }
+    .menu-item {
+      background: rgba(255,255,255,0.05);
+      padding: 1.5rem;
+      border-radius: 15px;
+      text-align: center;
+      border: 1px solid rgba(255,255,255,0.1);
+      box-shadow: 0 0 15px rgba(0,0,0,0.5);
+      transition: transform 0.4s ease, box-shadow 0.4s ease;
+    }
+    .menu-item:hover {
+      transform: translateY(-10px) scale(1.05);
+      box-shadow: 0 0 20px #f9d342, 0 0 40px rgba(249,211,66,0.6);
+    }
+    .menu-item h3 { color: #2a9df4; margin-bottom: 10px; }
+
+    /* Gallery */
+    .gallery-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 15px;
+    }
+    .gallery-grid img {
+      width: 100%;
+      border-radius: 15px;
+      transition: transform 0.4s ease, box-shadow 0.4s ease;
+      border: 2px solid rgba(255,255,255,0.1);
+    }
+    .gallery-grid img:hover {
+      transform: scale(1.08);
+      box-shadow: 0 0 25px #2a9df4, 0 0 40px rgba(42,157,244,0.6);
+    }
+
+    /* Contact */
+    form {
+      display: flex;
+      flex-direction: column;
+      max-width: 500px;
+      margin: auto;
+    }
+    form input, form textarea {
+      margin-bottom: 1rem;
+      padding: 0.9rem;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 8px;
+      font-size: 1rem;
+      color: #fff;
+    }
+    form input::placeholder, form textarea::placeholder { color: #aaa; }
+    form button {
+      padding: 0.9rem;
+      border: none;
+      background: linear-gradient(90deg, #1e3c72, #2a5298);
+      color: white;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 1rem;
+      transition: background 0.3s, transform 0.3s, box-shadow 0.3s;
+    }
+    form button:hover {
+      background: #16335e;
+      transform: scale(1.05);
+      box-shadow: 0 0 15px #2a5298;
+    }
+
+    /* Footer */
+    footer {
+      background: rgba(20,20,20,0.9);
+      color: #ccc;
+      text-align: center;
+      padding: 1.2rem;
+      margin-top: 2rem;
+      border-top: 1px solid rgba(255,255,255,0.1);
+    }
+
+    /* Animations */
+    @keyframes fadeInDown { from { opacity: 0; transform: translateY(-40px);} to { opacity: 1; transform: translateY(0);} }
+    @keyframes glowPulse { from { text-shadow: 0 0 5px #f9d342; } to { text-shadow: 0 0 20px #f9d342, 0 0 40px #f9d342; } }
+
+    /* Mobile */
+    @media (max-width: 768px) {
+      nav { display: none; }
+      .hamburger { display: flex; }
+    }
+
+    .spacer { margin-top: 80px; }
+  </style>
+</head>
+<body>
+  <!-- Background stars -->
+  <canvas id="stars"></canvas>
+
+  <!-- Navbar -->
+  <header>
+    <h1>Blue Birds Catering</h1>
+    <nav class="nav-links">
+      <a href="#about">About</a>
+      <a href="#menu">Menu</a>
+      <a href="#gallery">Gallery</a>
+      <a href="#contact">Contact</a>
+    </nav>
+    <div class="hamburger" id="hamburger">
+      <span></span>
+      <span></span>
+      <span></span>
+    </div>
+    <nav class="nav-links mobile" id="mobileNav">
+      <a href="#about">About</a>
+      <a href="#menu">Menu</a>
+      <a href="#gallery">Gallery</a>
+      <a href="#contact">Contact</a>
+    </nav>
+  </header>
+
+  <div class="spacer"></div>
+
+  <!-- Hero -->
+  <section class="hero">
+    <h2>Delicious Food. Royal Experience.</h2>
+  </section>
+
+  <!-- About -->
+  <section id="about" class="about">
+    <h2>About Us</h2>
+    <p>
+      Welcome to <b>Blue Birds Catering</b>! We bring luxury dining to your events with premium food and stunning presentation.  
+      From weddings to corporate parties, our glamorous service ensures every guest leaves with unforgettable memories.  
+    </p>
+  </section>
+
+  <!-- Menu -->
+  <section id="menu" class="menu">
+    <h2>Our Menu</h2>
+    <div class="menu-items">
+      <div class="menu-item"><h3>Royal Veg Meals</h3><p>₹200 / plate</p></div>
+      <div class="menu-item"><h3>Grand Non-Veg Meals</h3><p>₹350 / plate</p></div>
+      <div class="menu-item"><h3>Luxury Starters</h3><p>₹150 onwards</p></div>
+      <div class="menu-item"><h3>Exclusive Desserts</h3><p>₹100 onwards</p></div>
+    </div>
+  </section>
+
+  <!-- Gallery -->
+  <section id="gallery" class="gallery">
+    <h2>Gallery</h2>
+    <div class="gallery-grid">
+      <img src="https://images.unsplash.com/photo-1604909052957-36ec7ff9e00a" alt="Food">
+      <img src="https://images.unsplash.com/photo-1546069901-eacef0df6022" alt="Catering Setup">
+      <img src="https://images.unsplash.com/photo-1529042410759-befb1204b468" alt="Buffet">
+    </div>
+  </section>
+
+  <!-- Contact -->
+  <section id="contact" class="contact">
+    <h2>Contact Us</h2>
+    <form onsubmit="sendMessage(event)">
+      <input type="text" placeholder="Your Name" required>
+      <input type="email" placeholder="Your Email" required>
+      <input type="tel" placeholder="Your Phone" required>
+      <textarea rows="4" placeholder="Your Message" required></textarea>
+      <button type="submit">Send Message</button>
+    </form>
+    <p style="text-align:center; margin-top:10px;">
+      Or WhatsApp us: <a href="https://wa.me/91XXXXXXXXXX" target="_blank">+91 XXXXXXXXXX</a>
+    </p>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <p>© 2025 Blue Birds Catering. All rights reserved.</p>
+  </footer>
+
+  <script>
+    // Section reveal animations
+    const sections = document.querySelectorAll("section");
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add("visible");
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.2 });
+    sections.forEach(sec => observer.observe(sec));
+
+    // Contact form alert
+    function sendMessage(e) {
+      e.preventDefault();
+      alert("🎉 Thank you for contacting Blue Birds Catering! We'll reach out to you shortly.");
+    }
+
+    // Starry Background
+    const canvas = document.getElementById("stars");
+    const ctx = canvas.getContext("2d");
+    let stars = [];
+
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    window.addEventListener("resize", resizeCanvas);
+    resizeCanvas();
+
+    function createStars(count) {
+      stars = [];
+      for (let i = 0; i < count; i++) {
+        stars.push({
+          x: Math.random() * canvas.width,
+          y: Math.random() * canvas.height,
+          radius: Math.random() * 1.5,
+          speed: Math.random() * 0.5 + 0.2
+        });
+      }
+    }
+    createStars(150);
+
+    function drawStars() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = "white";
+      stars.forEach(star => {
+        ctx.beginPath();
+        ctx.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
+        ctx.fill();
+      });
+    }
+
+    function updateStars() {
+      stars.forEach(star => {
+        star.y += star.speed;
+        if (star.y > canvas.height) {
+          star.y = 0;
+          star.x = Math.random() * canvas.width;
+        }
+      });
+    }
+
+    function animateStars() {
+      drawStars();
+      updateStars();
+      requestAnimationFrame(animateStars);
+    }
+    animateStars();
+
+    // Hamburger menu
+    const hamburger = document.getElementById("hamburger");
+    const mobileNav = document.getElementById("mobileNav");
+    hamburger.addEventListener("click", () => {
+      hamburger.classList.toggle("active");
+      mobileNav.classList.toggle("show");
+    });
+  </script>
+</body>
+</html>
